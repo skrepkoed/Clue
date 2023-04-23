@@ -34,6 +34,8 @@ public class ClueGame extends Game {
 	Stage uistage;
 	Skin skin;
 	private Table table;
+
+	GameBroker gameBroker;
 	@Override
 	public void create () {
 		skin = new Skin(Gdx.files.internal("./skin/uiskin.json"));
@@ -97,7 +99,11 @@ public class ClueGame extends Game {
 		player.setSize(player.getWidth(),player.getHeight());
 		uistage.addActor(table);
 
+		gameBroker=GameBroker.getGame();
+
 		mainStage.addActor(player);
+
+
 
 	}
 

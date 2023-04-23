@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -14,10 +15,14 @@ public class PlayerInputProcessor implements InputProcessor {
     public Array<KeyState> keyStates = new Array<KeyState>();
     public Array<TouchState> touchStates = new Array<TouchState>();
 
+    Vector3 currentMousePosition;
+    Vector3 previousMousePosition;
+
 
 
     public PlayerInputProcessor(){
-
+        currentMousePosition=new Vector3(0,0,0);
+        previousMousePosition=new Vector3(currentMousePosition);
         for (int i = 0; i < 256; i++) {
             keyStates.add(new KeyState(i));
         }
@@ -167,6 +172,14 @@ public class PlayerInputProcessor implements InputProcessor {
         return touchStates.get(pointer).released;
     }
 
+    public boolean isMouseMoved(Vector3 currentMousePosition){
+        if (currentMousePosition.x==previousMousePosition.x&&currentMousePosition.y==previousMousePosition.y){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     public Vector2 touchCoordinates(int pointer){
         return touchStates.get(pointer).coordinates;
     }
@@ -186,6 +199,8 @@ public class PlayerInputProcessor implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        previousMousePosition=new Vector3(currentMousePosition);
+        currentMousePosition=new Vector3(screenX,screenY,0);
         return false;
     }
 

@@ -55,11 +55,7 @@ public class GameField extends Entity{
             //If the UP Key is pressed, translate the camera 3 units in the Y-Axis
         }
 
-        this.getStage().getCamera().update();
-
         //cam.zoom = MathUtils.clamp(cam.zoom, 0.1f, 100/cam.viewportWidth);
-
-
     }
 
     public void alignCamera()

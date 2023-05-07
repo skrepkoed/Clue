@@ -1,4 +1,4 @@
-package com.clue.game;
+package com.clue.game.gamelogic;
 
 import java.util.ArrayList;
 
@@ -7,11 +7,11 @@ public class InGamePlayer implements CardHolder {
 
     private boolean isAi;
 
-    public ArrayList<inGameCard> getHand() {
+    public ArrayList<InGameCard> getHand() {
         return hand;
     }
 
-    public ArrayList<inGameCard> hand=new ArrayList<inGameCard>();
+    public ArrayList<InGameCard> hand=new ArrayList<InGameCard>();
 
     public Person character;
 
@@ -20,12 +20,12 @@ public class InGamePlayer implements CardHolder {
         this.isAi=isAi;
     }
 
-    public void addCardToHand(inGameCard card){
+    public void addCardToHand(InGameCard card){
         hand.add(card);
     }
 
-    public Accusation accuse(Person person,Place place,Weapon weapon){
-        return new Accusation(person,place,weapon);
+    public void accuse(Person person, Place place, Weapon weapon){
+
     }
 
     public boolean isAi() {

@@ -1,15 +1,15 @@
-package com.clue.game;
+package com.clue.game.gamelogic;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 public class GameBroker {
 
     private static GameBroker game;
 
-    private static final Class[] CARDS_ENUM={Person.class,Place.class,Weapon.class};
+    private static final Class[] CARDS_ENUM={Person.class, Place.class, Weapon.class};
 
     public static int getNumberOfPlayers() {
         return numberOfPlayers;
@@ -23,19 +23,38 @@ public class GameBroker {
 
     private static int numberOfHumans;
 
+    public static  Solution solution=new Solution();
+
+    public static Solution getSolution() {
+        return solution;
+    }
 
     public static ArrayList<Person> charactersDeck=new ArrayList<Person>();
     //public static ArrayList<Place> placesStack=new ArrayList<Place>();
     //public static ArrayList<Weapon> weaponsStack=new ArrayList<Weapon>();
 
-    public static ArrayList<inGameCard> getCardsDeck() {
+    public static ArrayList<InGameCard> getCardsDeck() {
         return cardsDeck;
     }
 
-    public static ArrayList<inGameCard> cardsDeck=new ArrayList<inGameCard>();
+    public static ArrayList<InGameCard> cardsDeck=new ArrayList<InGameCard>();
     public static LinkedList<InGamePlayer> players= new LinkedList<InGamePlayer>() {
     };
-    public static LinkedHashMap<inGameCard,CardHolder> gameSolution=new LinkedHashMap<inGameCard,CardHolder>();
+    public static LinkedHashMap<InGameCard, CardHolder> gameSolution=new LinkedHashMap<InGameCard,CardHolder>();
+
+    public static Accusation getAccusation() {
+        return accusation;
+    }
+
+    public static void setAccusation(Accusation accusation) {
+        GameBroker.accusation = accusation;
+    }
+
+    public static Accusation accusation;
+
+    Iterator<InGamePlayer> nextPlayer;
+
+    InGamePlayer currentPlayer;
 
     private   GameBroker(){
         createCardsStack(Person.class,charactersDeck);
@@ -55,7 +74,9 @@ public class GameBroker {
     public void initialize(int numberOfPlayers,int numberOfHumans ){
         initializePlayers(numberOfPlayers, numberOfHumans);
         cardDistribution();
-
+        setAccusation(new Accusation());
+        nextPlayer=players.iterator();
+        currentPlayer=nextPlayer.next();
     }
 
     public void initialize(){
@@ -75,6 +96,12 @@ public class GameBroker {
     }
 
     private void cardDistribution(){
+        for (InGameCard card:cardsDeck) {
+            solution.addToSolution(card);
+        }
+        for (InGameCard card:solution.getHand()) {
+            cardsDeck.remove(card);
+        }
         int cardsNumberInHand=cardsDeck.size()/getNumberOfPlayers();
         int outer_counter=0;
         int counter=0;
@@ -86,7 +113,7 @@ public class GameBroker {
         }
     }
 
-    private  <E extends Enum<E> & inGameCard>
+    private  <E extends Enum<E> & InGameCard>
     void createCardsStack(Class<E> enumClass, ArrayList<E>list) {
         for(E constant : enumClass.getEnumConstants()) {
             list.add(constant);
@@ -94,7 +121,7 @@ public class GameBroker {
         Collections.shuffle(list);
     }
 
-    private  <E extends Enum<E> & inGameCard>
+    private  <E extends Enum<E> & InGameCard>
     void createCardsStack(Class<E>[] enumClasses) {
         for (Class<E> enumClass: enumClasses) {
             for(E constant : enumClass.getEnumConstants()) {

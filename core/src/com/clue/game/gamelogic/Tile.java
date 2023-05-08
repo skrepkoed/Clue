@@ -1,10 +1,23 @@
 package com.clue.game.gamelogic;
 
+import com.clue.game.Card;
+import com.clue.game.Player;
+
 public class Tile {
 
     public int x_cord;
     public  int y_cord;
     public boolean passable;
+
+    public Card getCurrentCard() {
+        return currentCard;
+    }
+
+    public void setCurrentCard(Card currentCard) {
+        this.currentCard = currentCard;
+    }
+
+    public Card currentCard;
 
     public int getX_cord() {
         return x_cord;
@@ -37,6 +50,10 @@ public class Tile {
             return true;
         }
         return false;
+    }
+
+    public int hashCode(){
+        return 1;
     }
 
     public Tile(int x_cord, int y_cord, boolean passable) {

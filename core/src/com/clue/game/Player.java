@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.clue.game.gamelogic.Field;
 import com.clue.game.gamelogic.InGamePlayer;
+import com.clue.game.gamelogic.Person;
 import com.clue.game.gamelogic.Tile;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -78,7 +79,7 @@ public class Player extends  Entity{
 
     public void setCurrentPositionVector(Vector2 currentPositionVector) {
         currentTile=findTile(currentPositionVector);
-        this.currentPositionVector = currentPositionVector;
+        //this.currentPositionVector = currentPositionVector;
     }
 
     public Tile findTile(Vector2 currentPositionVector){
@@ -116,24 +117,25 @@ public class Player extends  Entity{
 
     Vector2 pathVector;
     Random random =new Random();
-    InGamePlayer inGamePlayer;
-    public  Player(InGamePlayer inGameplayer){
+    Person person;
+    public  Player(Person person){
         super();
-        setTexture(new Texture(Gdx.files.internal(inGameplayer.character.getTexture())));
+        setTexture(new Texture(Gdx.files.internal(person.getTexture())));
         Collections.shuffle(initialPositions);
         Vector2 position=initialPositions.remove(0);
         setPosition(position.x, position.y);
-        setCurrentPositionVector(position);
+        //setCurrentPositionVector(position);
         setDestinationTile(position);
         setSize(50,50);
         //setDestination(new Vector2(initial_posX,initial_posY));
         velocity=new Vector2(0,0);
+        this.person=person;
 
     }
 
     public void setPosition(float x, float y){
         super.setPosition(x,y);
-        setCurrentPositionVector(ClueGameUtils.adjust_coordinates(new Vector3(x,y,0)));
+        //setCurrentPositionVector(ClueGameUtils.adjust_coordinates(new Vector3(x,y,0)));
 
     }
     public void  act(float dt){

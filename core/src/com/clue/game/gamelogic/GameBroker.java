@@ -38,8 +38,10 @@ public class GameBroker {
     }
 
     public static ArrayList<InGameCard> cardsDeck=new ArrayList<InGameCard>();
-    public static LinkedList<InGamePlayer> players= new LinkedList<InGamePlayer>() {
-    };
+    public static LinkedList<InGamePlayer> players= new LinkedList<InGamePlayer>();
+
+    public static ArrayList<Weapon>weapons=new ArrayList<Weapon>();
+    public static ArrayList<Person>persons=new ArrayList<Person>();
     public static LinkedHashMap<InGameCard, CardHolder> gameSolution=new LinkedHashMap<InGameCard,CardHolder>();
 
     public static Accusation getAccusation() {
@@ -73,6 +75,8 @@ public class GameBroker {
 
     public void initialize(int numberOfPlayers,int numberOfHumans ){
         initializePlayers(numberOfPlayers, numberOfHumans);
+        createCardsStack(Weapon.class, weapons);
+        createCardsStack(Person.class,persons);
         cardDistribution();
         setAccusation(new Accusation());
         nextPlayer=players.iterator();

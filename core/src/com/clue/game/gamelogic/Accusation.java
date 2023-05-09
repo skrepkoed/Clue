@@ -29,15 +29,19 @@ public class Accusation implements CardHolder.AtomicAccusation{
         return weapon;
     }
 
-    public void setWeapon(Weapon weapon) {
+    public void setWeapon( Weapon weapon) {
         this.weapon = weapon;
     }
 
 
-    private boolean isComplete=true;
-    public boolean isComplete(){
+    private boolean isComplete=false;
+    public boolean isComplete() {
+        if (person!=null&&place!=null&&weapon!=null){
+            this.isComplete=true;
+        }
         return this.isComplete;
-    };
+    }
+
 
 
     public Accusation(Person person, Place place, Weapon weapon) {

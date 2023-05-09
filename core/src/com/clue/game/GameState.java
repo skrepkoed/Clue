@@ -8,8 +8,15 @@ import java.util.Iterator;
 
 public class GameState {
     public Iterator<Player> nextPlayer;
-    public ArrayList<Player>players;
+    public ArrayList<Player>players=new ArrayList<>();
+
+    public ArrayList<Player> getCharacters() {
+        return characters;
+    }
+
+    public ArrayList<Player> characters=new ArrayList<>();
     public Player currentPlayer;
+
     public Player getCurrentPlayer() {
         if (!nextPlayer.hasNext()){
             nextPlayer=players.iterator();
@@ -23,8 +30,10 @@ public class GameState {
     }
 
 
-    public GameState(ArrayList<Player>players){
-        this.players=players;
+    public GameState(){
+
+    }
+    public void setIterator(){
         nextPlayer=players.iterator();
         currentPlayer=players.get(0);
     }

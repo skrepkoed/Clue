@@ -1,5 +1,7 @@
 package com.clue.game.gamelogic;
 
+import com.clue.game.Player;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -28,6 +30,7 @@ public class GameBroker {
     public static Solution getSolution() {
         return solution;
     }
+    SharedCards sharedCards=new SharedCards();
 
     public static ArrayList<Person> charactersDeck=new ArrayList<Person>();
     //public static ArrayList<Place> placesStack=new ArrayList<Place>();
@@ -38,11 +41,11 @@ public class GameBroker {
     }
 
     public static ArrayList<InGameCard> cardsDeck=new ArrayList<InGameCard>();
-    public static LinkedList<InGamePlayer> players= new LinkedList<InGamePlayer>();
+    public static ArrayList<InGamePlayer> players= new ArrayList<>();
 
     public static ArrayList<Weapon>weapons=new ArrayList<Weapon>();
     public static ArrayList<Person>persons=new ArrayList<Person>();
-    public static LinkedHashMap<InGameCard, CardHolder> gameSolution=new LinkedHashMap<InGameCard,CardHolder>();
+    public static LinkedHashMap<InGameCard, InGamePlayer> gameSolution=new LinkedHashMap<InGameCard,InGamePlayer>();
 
     public static Accusation getAccusation() {
         return accusation;
@@ -54,9 +57,11 @@ public class GameBroker {
 
     public static Accusation accusation;
 
+
+
     Iterator<InGamePlayer> nextPlayer;
 
-    InGamePlayer currentPlayer;
+    public InGamePlayer currentPlayer;
 
     private   GameBroker(){
         createCardsStack(Person.class,charactersDeck);
@@ -78,9 +83,7 @@ public class GameBroker {
         createCardsStack(Weapon.class, weapons);
         createCardsStack(Person.class,persons);
         cardDistribution();
-        setAccusation(new Accusation());
         nextPlayer=players.iterator();
-        currentPlayer=nextPlayer.next();
     }
 
     public void initialize(){
@@ -88,6 +91,52 @@ public class GameBroker {
         this.numberOfHumans=1;
         initialize(numberOfPlayers, numberOfHumans);
     }
+
+    public InGamePlayer getCurrentPlayer() {
+        if (!nextPlayer.hasNext()){
+            nextPlayer=players.iterator();
+        }
+        currentPlayer=nextPlayer.next();
+        return currentPlayer;
+    }
+
+    public Statement defineStatement(){
+        accusation=currentPlayer.accusation;
+        InGamePlayer p1= gameSolution.get(accusation.getPerson());
+        InGamePlayer p2=gameSolution.get(accusation.getPlace());
+        InGamePlayer p3=gameSolution.get(accusation.getWeapon());
+        int start=players.lastIndexOf(currentPlayer);
+        for (int i=start;i<players.size();i++){
+            if (players.get(i).equals(p1)){
+                return new Statement(p1,accusation.getPerson());
+            }
+            if (players.get(i).equals(p2)){
+                return new Statement(p2,accusation.getPlace());
+            }
+            if (players.get(i).equals(p3)){
+                return new Statement(p3,accusation.getWeapon());
+            }
+        }
+        for (int i=0;i<start;i++){
+            if (players.get(i).equals(p1)){
+                return new Statement(p1,accusation.getPerson());
+            }
+            if (players.get(i).equals(p2)){
+                return new Statement(p2,accusation.getPlace());
+            }
+            if (players.get(i).equals(p3)){
+                return new Statement(p3,accusation.getWeapon());
+            }
+        }
+        if (sharedCards.getHand().contains(accusation.getPerson())||
+                sharedCards.getHand().contains(accusation.getPlace())||
+                sharedCards.getHand().contains(accusation.getWeapon())){
+
+        }
+        return new Statement();
+    }
+
+
 
     private void initializePlayers(int numberOfPlayers, int numberOfHumans){
         for(int i=0; i<numberOfHumans;i++){
@@ -107,6 +156,10 @@ public class GameBroker {
             cardsDeck.remove(card);
         }
         int cardsNumberInHand=cardsDeck.size()/getNumberOfPlayers();
+        int sharedCardsNumber=cardsDeck.size()%getNumberOfPlayers();
+        for (int i= 0;i<sharedCardsNumber;i++){
+            sharedCards.addCards(cardsDeck.remove(i));
+        }
         int outer_counter=0;
         int counter=0;
         for (InGamePlayer player:players) {

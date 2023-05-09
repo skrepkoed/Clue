@@ -1,5 +1,6 @@
 package com.clue.game.gamelogic;
 
+import com.badlogic.gdx.math.Vector2;
 import com.clue.game.Card;
 import com.clue.game.Player;
 
@@ -60,6 +61,10 @@ public class Tile {
         this.x_cord = x_cord;
         this.y_cord = y_cord;
         this.passable = passable;
+    }
+
+    public Vector2 composeVector(){
+        return new Vector2((float) x_cord,(float) y_cord);
     }
 
     public String toString(){

@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.clue.game.gamelogic.Field;
+import com.clue.game.gamelogic.GameBroker;
 import com.clue.game.gamelogic.InGamePlayer;
 import com.clue.game.gamelogic.Person;
 import com.clue.game.gamelogic.Tile;
@@ -47,6 +48,7 @@ public class Player extends  Entity{
         this.destination = destination;
         System.out.println(destination.x);
         System.out.println(destination.y);
+        setCurrentPositionVector(currentTile.composeVector());
         pathVector=new Vector2(destination.x-currentPositionVector.x,destination.y-currentPositionVector.y);
 
         int score=(Math.abs((int)pathVector.x))/50+(Math.abs((int)pathVector.y))/50;
@@ -56,18 +58,37 @@ public class Player extends  Entity{
             scaleFactor(pathVector);
             velocity = new Vector2(factor*pathVector.x,factor*pathVector.y);
         }
+        moveTo(destination.x,destination.y,3);
+        currentTile=findTile(destination);
     }
 
-    public void setDestinationTile(Vector2 destination){
+    public void setDestinationTile(Vector2 destination,boolean isScored){
         //setDestination(destination);
         System.out.println(destination.x);
         System.out.println(destination.y);
         destinationTile=findTile(destination);
         createPath();
-        System.out.println("Path: "+ path);
-        passPath();
-        System.out.println("Current pos:"+currentTile);
-        System.out.println("Destination pos:"+destinationTile);
+        if (isScored){
+        if (path.size()<= GameBroker.getGame().currentPlayer.getMoves()) {
+            System.out.println("Path: " + path);
+            System.out.println("Moves: "+GameBroker.getGame().currentPlayer.getMoves());
+            passPath();
+            GameBroker.getGame().currentPlayer.setMoves(GameBroker.getGame().currentPlayer.getMoves()-path.size());
+            System.out.println("Current pos:" + currentTile);
+            System.out.println("Destination pos:" + destinationTile);
+        }else {
+            if (GameBroker.getGame().currentPlayer.isAi()){
+                for (int i =0;i<path.size()-GameBroker.getGame().currentPlayer.getMoves();i++){
+                    path.removeLast();
+                }
+                destinationTile=path.getLast();
+                passPath();
+            }
+            path=new ArrayDeque<>();
+        }
+        }else {
+            passPath();
+        }
 
     }
 
@@ -79,7 +100,7 @@ public class Player extends  Entity{
 
     public void setCurrentPositionVector(Vector2 currentPositionVector) {
         currentTile=findTile(currentPositionVector);
-        //this.currentPositionVector = currentPositionVector;
+        this.currentPositionVector = currentPositionVector;
     }
 
     public Tile findTile(Vector2 currentPositionVector){
@@ -125,7 +146,7 @@ public class Player extends  Entity{
         Vector2 position=initialPositions.remove(0);
         setPosition(position.x, position.y);
         //setCurrentPositionVector(position);
-        setDestinationTile(position);
+        setDestinationTile(position,false);
         setSize(50,50);
         //setDestination(new Vector2(initial_posX,initial_posY));
         velocity=new Vector2(0,0);
@@ -173,6 +194,7 @@ public class Player extends  Entity{
 
     public void passPath(){
         int duration=3;
+        currentTile=destinationTile;
         SequenceAction sequence = new SequenceAction();
         /*if (!path.isEmpty()){
         if (currentTile.equals(path.getFirst())){
@@ -206,7 +228,7 @@ public class Player extends  Entity{
         sequence.addAction(run(new Runnable() {
             @Override
             public void run() {
-                currentTile=destinationTile;
+                //currentTile=destinationTile;
                 path=new ArrayDeque<>();
             }
         }));

@@ -1,7 +1,10 @@
 package com.clue.game.gamelogic;
 
+import static com.badlogic.gdx.math.MathUtils.random;
+
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 public class InGamePlayer implements CardHolder {
 
@@ -18,10 +21,22 @@ public class InGamePlayer implements CardHolder {
 
     public Accusation accusation;
 
+    public int getMoves() {
+        return moves;
+    }
+
+    public void setMoves(int moves) {
+        this.moves = moves;
+    }
+
+    public int moves;
+    private Random random=new Random();
+
     InGamePlayer(Person character,boolean isAi){
         this.character=character;
         this.isAi=isAi;
         accusation=new Accusation();
+        //setMoves(random.nextInt(12)+1);
     }
 
     public void addCardToHand(InGameCard card){

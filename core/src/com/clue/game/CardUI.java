@@ -51,6 +51,7 @@ public class CardUI extends Card {
             new Tile(700,600,true),Place.BedRoom,
             new Tile(500,650,true),Place.Cabinet,
             new Tile(300,650,true),Place.BathRoom);
+    GameState gameState;
 
     public Card getCard() {
         return card;
@@ -59,33 +60,66 @@ public class CardUI extends Card {
     public CardUI(Card card,GameState gameState){
         super(card.getInGameCard());
         this.card=card;
+        this.gameState=gameState;
         setTouchable(Touchable.enabled);
         setSize(100,100);
         addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(((CardUI.placesTile.get(gameState.getCurrentPlayerPosition()))!=null)){
-                    GameBroker.getGame().currentPlayer.accusation.setPlace((CardUI.placesTile.get(gameState.getCurrentPlayerPosition())));
-                    getParent().getParent().getChild(1).setVisible(false);
-                    getParent().getParent().getChild(0).setVisible(true);
-                    if (card.inGameCard.getClass().getSimpleName().equals("Weapon")){
-                        Tile tile=CardUI.weaponsLocations.get(gameState.getCurrentPlayerPosition());
-                        GameBroker.getGame().currentPlayer.accusation.setWeapon((Weapon)card.getInGameCard());
-                        placeCard(tile);
+                uiInteraction();
+            }
+        });
+    }
 
-                    }else if (card.inGameCard.getClass().getSimpleName().equals("Person")){
-                        Tile tile=CardUI.personsLocations.get(gameState.getCurrentPlayerPosition());
-                        GameBroker.getGame().currentPlayer.accusation.setPerson((Person)card.getInGameCard());
+    public void uiInteraction(){
+        if(((CardUI.placesTile.get(gameState.getCurrentPlayerPosition()))!=null)){
+            GameBroker.getGame().currentPlayer.accusation.setPlace((CardUI.placesTile.get(gameState.getCurrentPlayerPosition())));
+            getParent().getParent().getChild(1).setVisible(false);
+            getParent().getParent().getChild(0).setVisible(true);
+            if (card.inGameCard.getClass().getSimpleName().equals("Weapon")){
+                Tile tile=CardUI.weaponsLocations.get(gameState.getCurrentPlayerPosition());
+                GameBroker.getGame().currentPlayer.accusation.setWeapon((Weapon)card.getInGameCard());
+                placeCard(tile);
 
-                        for (Player p:gameState.characters) {
-                            if ((p.person==(Person)card.inGameCard)&&(Person)card.inGameCard!=gameState.currentPlayer.person){
-                                p.setDestinationTile(tile.composeVector());
-                            }
-                        }
+            }else if (card.inGameCard.getClass().getSimpleName().equals("Person")){
+                Tile tile=CardUI.personsLocations.get(gameState.getCurrentPlayerPosition());
+                GameBroker.getGame().currentPlayer.accusation.setPerson((Person)card.getInGameCard());
+
+                for (Player p:gameState.characters) {
+                    if ((p.person==(Person)card.inGameCard)&&(Person)card.inGameCard!=gameState.currentPlayer.person){
+                        p.setDestinationTile(tile.composeVector(),false);
                     }
                 }
             }
-        });
+        }
+    }
+
+    public boolean aIUiInteraction(){
+        if(((CardUI.placesTile.get(gameState.getCurrentPlayerPosition()))!=null)){
+            //GameBroker.getGame().currentPlayer.accusation.setPlace((CardUI.placesTile.get(gameState.getCurrentPlayerPosition())));
+            getParent().getParent().getChild(1).setVisible(false);
+            getParent().getParent().getChild(0).setVisible(true);
+            if (card.inGameCard.getClass().getSimpleName().equals("Weapon")){
+                Tile tile=CardUI.weaponsLocations.get(gameState.getCurrentPlayerPosition());
+                //GameBroker.getGame().currentPlayer.accusation.setWeapon((Weapon)card.getInGameCard());
+                placeCard(tile);
+
+            }else if (card.inGameCard.getClass().getSimpleName().equals("Person")){
+                Tile tile=CardUI.personsLocations.get(gameState.getCurrentPlayerPosition());
+                //GameBroker.getGame().currentPlayer.accusation.setPerson((Person)card.getInGameCard());
+
+                for (Player p:gameState.characters) {
+                    if ((p.person==(Person)card.inGameCard)&&(Person)card.inGameCard!=gameState.currentPlayer.person){
+                        p.setDestinationTile(tile.composeVector(),false);
+                        //p.moveToDestination();
+                    }
+                }
+            }
+
+            return true;
+        }else {
+            return false;
+        }
     }
     private void placeCard(Tile tile){
         if (tile.getCurrentCard()!=null){

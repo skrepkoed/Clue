@@ -19,6 +19,8 @@ public interface CardHolder {
 
         public void setWeapon(Weapon card);
 
+
+
         public default boolean addToSolution(InGameCard card) {
             try {
                 if (getPerson() == null && card.getClass().getSimpleName().equals("Person")) {

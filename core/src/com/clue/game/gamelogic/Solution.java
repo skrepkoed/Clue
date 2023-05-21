@@ -37,6 +37,18 @@ public class Solution implements CardHolder, CardHolder.AtomicAccusation {
 
     }
 
+    public boolean revelation(Accusation accusation){
+        if (getPerson()==accusation.getPerson()
+                &&getPlace()==accusation.getPlace()
+                &&getWeapon()==accusation.getWeapon()){
+          return true;
+        }
+        return false;
+    }
+
+  public String toString(){
+    return "Mansion owner was murdered by \n"+ getPerson()+ " in"+ getPlace()+" with"+ getWeapon();
+  }
 
   @Override
   public Person getPerson() {

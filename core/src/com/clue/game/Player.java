@@ -63,19 +63,12 @@ public class Player extends  Entity{
     }
 
     public void setDestinationTile(Vector2 destination,boolean isScored){
-        //setDestination(destination);
-        System.out.println(destination.x);
-        System.out.println(destination.y);
         destinationTile=findTile(destination);
         createPath();
         if (isScored){
         if (path.size()<= GameBroker.getGame().currentPlayer.getMoves()) {
-            System.out.println("Path: " + path);
-            System.out.println("Moves: "+GameBroker.getGame().currentPlayer.getMoves());
             passPath();
             GameBroker.getGame().currentPlayer.setMoves(GameBroker.getGame().currentPlayer.getMoves()-path.size());
-            System.out.println("Current pos:" + currentTile);
-            System.out.println("Destination pos:" + destinationTile);
         }else {
             if (GameBroker.getGame().currentPlayer.isAi()){
                 for (int i =0;i<path.size()-GameBroker.getGame().currentPlayer.getMoves();i++){
@@ -89,7 +82,6 @@ public class Player extends  Entity{
         }else {
             passPath();
         }
-
     }
 
     Vector2 destination;

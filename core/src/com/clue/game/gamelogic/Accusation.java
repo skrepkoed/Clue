@@ -50,6 +50,10 @@ public class Accusation implements CardHolder.AtomicAccusation{
         this.weapon = weapon;
     }
 
+    public String toString(){
+        return "Mansion owner was murdered by +\n"+ getPerson()+" in"+ getPlace()+" with"+ getWeapon();
+    }
+
     public Accusation(){
 
     }

@@ -56,7 +56,6 @@ public class ClueGame extends Game {
 	Player player;
 	PlayerInputProcessor processor;
 	InputMultiplexer multiplexer;
-	InputAdapter uiprocessor;
 	Stage uistage;
 	Stage menuStage;
 	Label buttonLabelBack;
@@ -70,8 +69,7 @@ public class ClueGame extends Game {
 
 	GameBroker gameBroker;
 	GameState gameState;
-	//ArrayList<Player>players;
-	//Iterator<Player> nextPlayer;
+
 	Player currentPlayer;
 	boolean nextTurn=false;
 	@Override
@@ -94,30 +92,16 @@ public class ClueGame extends Game {
 		batch =new SpriteBatch();
 		Camera camera=new OrthographicCamera(300,300);
 		Camera camera1=new OrthographicCamera(1200,1000);
-		Camera camera2=new OrthographicCamera(1200,1000);
+
 		ExtendViewport viewport =new ExtendViewport(400, 400,camera);
-		ExtendViewport menuViewport=new ExtendViewport(1200,1000,camera2);
+
 		ScreenViewport guiviewport=new ScreenViewport(camera1);
 
 		mainStage = new Stage(viewport,batch);
 		uistage = new Stage(guiviewport,batch);
-		menuStage=new Stage(menuViewport,batch);
-		Label playButton=new Label("Play",skin,"metalButton");
-		playButton.setSize(300,200);
-		playButton.setPosition(400,500);
-		playButton.setAlignment(Align.center);
-		playButton.setFontScale(5);
-		playButton.addListener(new ClickListener(){
-			public void clicked(InputEvent event,float x,float y){
-				menuStage.dispose();
-			}
-		});
-		Entity menuScreen=new Entity();
-		menuScreen.setTexture(new Texture(Gdx.files.internal("./assets/menu_screen.png")));
-		menuScreen.setSize(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		menuStage.addActor(menuScreen);
-		menuStage.addActor(playButton);
+		initializeMenu("Play");
 		initialize();
+		mainStage.getCamera().translate(450,350,0);
 
 
 		multiplexer=new InputMultiplexer();
@@ -130,16 +114,32 @@ public class ClueGame extends Game {
 
 	}
 
+	public void initializeMenu(String text){
+		Camera camera2=new OrthographicCamera(1200,1000);
+		ExtendViewport menuViewport=new ExtendViewport(1200,1000,camera2);
+		menuStage=new Stage(menuViewport,batch);
+		Label playButton=new Label(text,skin,"metalButton");
+		playButton.setSize(300,200);
+		playButton.setPosition(600,600);
+		playButton.setAlignment(Align.center);
+		playButton.setFontScale(3);
+		playButton.addListener(new ClickListener(){
+			public void clicked(InputEvent event,float x,float y){
+				menuStage.dispose();
+			}
+		});
+		Entity menuScreen=new Entity();
+		menuScreen.setTexture(new Texture(Gdx.files.internal("./assets/menu_screen.png")));
+		menuScreen.setSize(Gdx.graphics.getWidth()+50,Gdx.graphics.getHeight()+50);
+		menuStage.addActor(menuScreen);
+		menuStage.addActor(playButton);
+	}
 	public void initialize(){
 		field=new GameField();
 		field.setTexture(new Texture(Gdx.files.internal("assets/field3.png")));
 		field.setSize(1200,1000);
 		mainStage.addActor(field);
-		Entity envelope=new Entity();
-		envelope.setTexture(new Texture(Gdx.files.internal("./assets/envelope.png")));
-		envelope.setSize(50,50);
-		envelope.setPosition(500,450);
-		mainStage.addActor(envelope);
+
 		gameBroker=GameBroker.getGame();
 		//ArrayList<Player>players=new ArrayList<Player>();
 		gameState=new GameState();
@@ -211,11 +211,9 @@ public class ClueGame extends Game {
 		//table4.add(buttonLabelNextTurn).fillX().size(150,100);
 		table5 = new Table();
 		createSolutionTable();
-		table.add(table5).maxWidth(400).top().padRight(Gdx.graphics.getWidth()-700);
+		table.add(table5).maxWidth(500).top().padRight(Gdx.graphics.getWidth()-800);
 		table.add(table4);
 		table.top().right();
-
-		table.setDebug(true);
 		uistage.addActor(table);
 		GameBroker.getGame().getCurrentPlayer();
 		gameState.getCurrentPlayer();
@@ -223,9 +221,23 @@ public class ClueGame extends Game {
 	}
 
 	public void refreshCurrentPlayer(){
-		table5.getCells().get(0).setActor(new Label("Current player: +\n"+GameBroker.getGame().currentPlayer.character+"\n" +
+		table5.getCells().get(0).setActor(new Label("Current player: \n"+GameBroker.getGame().currentPlayer.character+"\n" +
 						"Moves: "
 						+GameBroker.getGame().currentPlayer.getMoves(),skin,"defaultBack")).size(100,100);
+	}
+
+	public Entity initializeEnvelope(){
+		Entity envelope=new Entity();
+		envelope.setTexture(new Texture(Gdx.files.internal("./assets/envelope.png")));
+		envelope.setSize(100,100);
+		envelope.addListener(new ClickListener(){
+			public void clicked(InputEvent event,float x,float y){
+				GameBroker.getGame().finalAccusation=true;
+				table5.getCells().get(0).setActor(new Label("Final\n Accusation!",skin,"metalButton"));
+
+			}
+		});
+		return envelope;
 	}
 
 	public void createSolutionTable(){
@@ -235,6 +247,7 @@ public class ClueGame extends Game {
 		for (InGamePlayer player:gameBroker.players) {
 			table5.add(new Label(player.character.toString(),skin,"defaultBack")).size(100,100);
 		}
+		table5.add(initializeEnvelope());
 		table5.row().height(40);
 		createSubTable(table5,gameBroker.persons);
 		createSubTable(table5,gameBroker.places);
@@ -361,61 +374,69 @@ public class ClueGame extends Game {
 	}
 
 	public void accuse(){
-		if (GameBroker.getGame().currentPlayer.accusation.isComplete()){
-			Stack stack=(Stack) buttonLabelAccuse.getParent().getChild(0);
+		if (GameBroker.getGame().currentPlayer.accusation.isComplete()) {
+			Stack stack = (Stack) buttonLabelAccuse.getParent().getChild(0);
 			stack.getChild(1).setVisible(true);
 			stack.getChild(0).setVisible(false);
-			Table table=(Table) stack.getChild(1);
-			Statement statement= gameBroker.defineStatement();
-			if (!GameBroker.getGame().currentPlayer.isAi()){
-				for (StatementHolder st:statementHolderArray) {
-					if (st.statement.equals(statement)){
-						st.setTrue();
-						if ((statementHolderArray.indexOf(st)+1)%3==0){
-							statementHolderArray.get(statementHolderArray.indexOf(st)-1).setFalse();
-							statementHolderArray.get(statementHolderArray.indexOf(st)-2).setFalse();
-						}else if ((statementHolderArray.indexOf(st)+1)%3==2){
-							statementHolderArray.get(statementHolderArray.indexOf(st)+1).setFalse();
-							statementHolderArray.get(statementHolderArray.indexOf(st)-1).setFalse();
-						}else {
-							statementHolderArray.get(statementHolderArray.indexOf(st)+1).setFalse();
-							statementHolderArray.get(statementHolderArray.indexOf(st)+2).setFalse();
+			Table table = (Table) stack.getChild(1);
+			if (GameBroker.getGame().finalAccusation) {
+				String result=GameBroker.getGame().currentPlayer.accusation.toString();
+				if(GameBroker.solution.revelation(GameBroker.getGame().currentPlayer.accusation)){
+					initializeMenu("You win!\n"+result);
+				}else {
+					initializeMenu("You loose!\n"+GameBroker.solution.toString());
+				}
+			} else {
+				Statement statement = gameBroker.defineStatement();
+				if (!GameBroker.getGame().currentPlayer.isAi()) {
+					for (StatementHolder st : statementHolderArray) {
+						if (st.statement.equals(statement)) {
+							st.setTrue();
+							if ((statementHolderArray.indexOf(st) + 1) % 3 == 0) {
+								statementHolderArray.get(statementHolderArray.indexOf(st) - 1).setFalse();
+								statementHolderArray.get(statementHolderArray.indexOf(st) - 2).setFalse();
+							} else if ((statementHolderArray.indexOf(st) + 1) % 3 == 2) {
+								statementHolderArray.get(statementHolderArray.indexOf(st) + 1).setFalse();
+								statementHolderArray.get(statementHolderArray.indexOf(st) - 1).setFalse();
+							} else {
+								statementHolderArray.get(statementHolderArray.indexOf(st) + 1).setFalse();
+								statementHolderArray.get(statementHolderArray.indexOf(st) + 2).setFalse();
+							}
 						}
 					}
 				}
-			}
-			for (int i=0;i<table.getCells().size;i+=2){
-				InGameCard card=((CardUI) (table.getCells().get(i).getActor())).getCard().getInGameCard();
-				Person person=(Person) card;
+				for (int i = 0; i < table.getCells().size; i += 2) {
+					InGameCard card = ((CardUI) (table.getCells().get(i).getActor())).getCard().getInGameCard();
+					Person person = (Person) card;
 
-				if (!gameBroker.currentPlayer.isAi()) {
-					if (!statement.isEmpty()) {
-						Person person1 = statement.inGamePlayer.character;
-						if (person1 == person) {
-							((Label) table.getCells().get(i + 1).getActor()).setText("I have " + statement.card + " card");
+					if (!gameBroker.currentPlayer.isAi()) {
+						if (!statement.isEmpty()) {
+							Person person1 = statement.inGamePlayer.character;
+							if (person1 == person) {
+								((Label) table.getCells().get(i + 1).getActor()).setText("I have " + statement.card + " card");
+							}
+						} else {
+							Person person1 = gameBroker.currentPlayer.character;
+							if (person == person1) {
+								((Label) table.getCells().get(i + 1).getActor()).setText("Maybe no one has such card");
+							}
 						}
 					} else {
-						Person person1 = gameBroker.currentPlayer.character;
-						if (person == person1) {
-							((Label) table.getCells().get(i + 1).getActor()).setText("Maybe no one has such card");
-						}
-					}
-				}else{
-					if (!statement.isEmpty()) {
-						Person person1 = statement.inGamePlayer.character;
-						if (gameBroker.currentPlayer.character == person) {
-							((Label) table.getCells().get(i + 1).getActor()).setText("I got some card from +\n" + statement.inGamePlayer.character);
-						}
-					} else {
-						Person person1 = gameBroker.currentPlayer.character;
-						if (person == person1) {
-							((Label) table.getCells().get(i + 1).getActor()).setText("Maybe no one has such card");
+						if (!statement.isEmpty()) {
+							Person person1 = statement.inGamePlayer.character;
+							if (gameBroker.currentPlayer.character == person) {
+								((Label) table.getCells().get(i + 1).getActor()).setText("I got some card from +\n" + statement.inGamePlayer.character);
+							}
+						} else {
+							Person person1 = gameBroker.currentPlayer.character;
+							if (person == person1) {
+								((Label) table.getCells().get(i + 1).getActor()).setText("Maybe no one has such card");
+							}
 						}
 					}
 				}
 			}
 		}
-
 	}
 
 	public void update(float dt){
@@ -424,11 +445,13 @@ public class ClueGame extends Game {
 
 	}
 	public void resize(int width, int height) {
-		mainStage.getViewport().update(width,height,true);
+		mainStage.getViewport().update(width,height);
 		uistage.getViewport().update(width,height,true);
-		menuStage.getViewport().update(width,height,true);
-		menuStage.getActors().get(0).setSize(width+50,height+50);
-		table.getCells().get(0).padRight(Gdx.graphics.getWidth()-700);
+		if (!menuStage.getActors().isEmpty()){
+			menuStage.getViewport().update(width,height,true);
+			menuStage.getActors().get(0).setSize(width+50,height+50);
+		}
+		table.getCells().get(0).padRight(Gdx.graphics.getWidth()-800);
 
 	}
 	@Override

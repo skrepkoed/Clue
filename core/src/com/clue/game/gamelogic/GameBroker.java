@@ -52,6 +52,8 @@ public class GameBroker {
     public static ArrayList<Person>persons=new ArrayList<Person>();
     public static  ArrayList<Place>places=new ArrayList<>();
     Random random=new Random();
+
+    public  boolean finalAccusation=false;
     public static LinkedHashMap<InGameCard, InGamePlayer> gameSolution=new LinkedHashMap<InGameCard,InGamePlayer>();
 
     public static Accusation getAccusation() {
